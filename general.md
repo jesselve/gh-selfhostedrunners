@@ -1,5 +1,7 @@
 # Overall GitHub self-hosted runner design
 
+> A self-hosted runner is a system that you deploy and manage to execute jobs from GitHub Actions on GitHub.
+
 see: [About self-hosted runners](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners)
 
 ```mermaid
