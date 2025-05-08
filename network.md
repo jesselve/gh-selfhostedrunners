@@ -1,0 +1,89 @@
+# GitHub Self-Hosted Runner - Outbound Network Requirements
+
+See: [Communicating with self-hosted runners](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/communicating-with-self-hosted-runners)
+
+```mermaid
+flowchart TB
+    %% Main Components
+    subgraph AZ["Azure Cloud"]
+        subgraph VNet["Azure VNet"]
+            subgraph VM["Linux VM with Self-hosted Runner"]
+                RunnerApp["Self-hosted Runner Application
+                fa:fa-cogs"]
+                Firewall["Network Firewall/Security Group
+                fa:fa-shield-alt"]
+            end
+        end
+    end
+    
+    %% Domain Groups
+    subgraph EssentialDomains["Essential Runner Operation Domains"]
+        GitHub_com["github.com"]
+        API_GitHub_com["api.github.com"]
+        Actions_UserContent["*.actions.githubusercontent.com"]
+    end
+    
+    subgraph ActionsDomains["Action Download Domains"]
+        Codeload["codeload.github.com"]
+        PKG_Actions["pkg.actions.githubusercontent.com"]
+    end
+    
+    subgraph UpdateDomains["Runner Update Domains"]
+        Objects_UserContent["objects.githubusercontent.com"]
+        Objects_Origin["objects-origin.githubusercontent.com"]
+        GH_Releases["github-releases.githubusercontent.com"]
+        GH_Registry["github-registry-files.githubusercontent.com"]
+    end
+    
+    subgraph ArtifactDomains["Artifact & Log Domains"]
+        Results_Receiver["results-receiver.actions.githubusercontent.com"]
+        Blob_Storage["*.blob.core.windows.net"]
+    end
+    
+    subgraph OtherDomains["Optional Services"]
+        OIDCService["OIDC Token Service (*.actions.githubusercontent.com)"]
+        GitHubPackages["GitHub Packages (*.pkg.github.com, ghcr.io)"]
+    end
+    
+    %% Connections from Runner to Domain Groups
+    RunnerApp -->|"HTTPS (TCP Port 443)
+    Long Poll Connection
+    50s timeout
+    Min 70 Kbps"| EssentialDomains
+    RunnerApp -->|"HTTPS (TCP Port 443)"| ActionsDomains
+    RunnerApp -->|"HTTPS (TCP Port 443)"| UpdateDomains
+    RunnerApp -->|"HTTPS (TCP Port 443)"| ArtifactDomains
+    RunnerApp -.->|"HTTPS (TCP Port 443)"| OtherDomains
+    
+    %% Firewall Configuration
+    Firewall -->|"Allow Outbound
+    TCP Port 443"| EssentialDomains
+    Firewall -->|"Allow Outbound
+    TCP Port 443"| ActionsDomains
+    Firewall -->|"Allow Outbound
+    TCP Port 443"| UpdateDomains
+    Firewall -->|"Allow Outbound
+    TCP Port 443"| ArtifactDomains
+    Firewall -.->|"Allow Outbound
+    TCP Port 443"| OtherDomains
+    
+    %% Class Definitions
+    classDef azure fill:#0078D4,color:white,stroke:#005BA1,stroke-width:2px
+    classDef github fill:#24292E,color:white,stroke:#1B1F23,stroke-width:2px
+    classDef runner fill:#E95420,color:white,stroke:#C33C12,stroke-width:2px
+    classDef essentialDomains fill:#2ECC71,color:white,stroke:#27AE60,stroke-width:2px
+    classDef actionDomains fill:#3498DB,color:white,stroke:#2980B9,stroke-width:2px
+    classDef updateDomains fill:#9B59B6,color:white,stroke:#8E44AD,stroke-width:2px
+    classDef artifactDomains fill:#F1C40F,color:white,stroke:#F39C12,stroke-width:2px
+    classDef otherDomains fill:#1ABC9C,color:white,stroke:#16A085,stroke-width:2px
+    classDef firewall fill:#E74C3C,color:white,stroke:#C0392B,stroke-width:2px
+    
+    class AZ,VNet azure
+    class VM,RunnerApp runner
+    class EssentialDomains,GitHub_com,API_GitHub_com,Actions_UserContent essentialDomains
+    class ActionsDomains,Codeload,PKG_Actions actionDomains
+    class UpdateDomains,Objects_UserContent,Objects_Origin,GH_Releases,GH_Registry updateDomains
+    class ArtifactDomains,Results_Receiver,Blob_Storage artifactDomains
+    class OtherDomains,OIDCService,GitHubPackages otherDomains
+    class Firewall firewall
+```
