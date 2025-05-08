@@ -2,7 +2,9 @@
 
 see: [About self-hosted runners](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/about-self-hosted-runners)
 
+<div style="background-color: white; padding: 20px;">
 ```mermaid
+
 flowchart TD
     %% GitHub Components
     subgraph GH["Ledcor GitHub Org Account"]
@@ -55,3 +57,4 @@ flowchart TD
     class Resources targetenv
     class Dev user
 ```
+</div>
